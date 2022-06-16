@@ -1,22 +1,22 @@
 {
-  "name": "@cocore/swap-periphery",
-  "version": "1.0.0",
-  "description": "🎚 Peripheral smart contracts for interacting with CocoreSwap",
+  "name": "@core-dex/periphery",
+  "version": "1.0.1-alpha",
+  "description": "🎚 Peripheral smart contracts for interacting with CORE DEX",
   "engines": {
     "node": ">=10"
   },
   "homepage": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CocoreProjects/cocoreswap-periphery"
+    "url": "https://github.com/CORE-DEX/coredex-periphery"
   },
   "files": [
     "build",
     "contracts"
   ],
   "dependencies": {
-    "@cocore/swap-core": "^1.0.0-alpha",
-    "@cocore/swap-lib": "^1.0.0"
+    "@core-dex/core": "^1.0.1",
+    "@core-dex/lib": "^1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.6",
