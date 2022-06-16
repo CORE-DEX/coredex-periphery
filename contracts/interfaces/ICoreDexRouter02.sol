@@ -1,8 +1,8 @@
 pragma solidity >=0.6.2;
 
-import './ICocoreswapRouter01.sol';
+import './ICoreDexRouter01.sol';
 
-interface ICocoreswapRouter02 is ICocoreswapRouter01 {
+interface ICoreDexRouter02 is ICoreDexRouter01 {
     function removeLiquidityETHSupportingFeeOnTransferTokens(
         address token,
         uint liquidity,

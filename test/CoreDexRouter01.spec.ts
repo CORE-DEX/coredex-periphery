@@ -15,11 +15,11 @@ const overrides = {
 }
 
 enum RouterVersion {
-  CocoreswapRouter01 = 'CocoreswapRouter01',
-  CocoreswapRouter02 = 'CocoreswapRouter02'
+  CoreDexRouter01 = 'CoreDexRouter01',
+  CoreDexRouter02 = 'CoreDexRouter02'
 }
 
-describe('CocoreswapRouter{01,02}', () => {
+describe('CoreDexRouter{01,02}', () => {
   for (const routerVersion of Object.keys(RouterVersion)) {
     const provider = new MockProvider({
       hardfork: 'istanbul',
@@ -46,8 +46,8 @@ describe('CocoreswapRouter{01,02}', () => {
       WETHPartner = fixture.WETHPartner
       factory = fixture.factory
       router = {
-        [RouterVersion.CocoreswapRouter01]: fixture.router01,
-        [RouterVersion.CocoreswapRouter02]: fixture.router02
+        [RouterVersion.CoreDexRouter01]: fixture.router01,
+        [RouterVersion.CoreDexRouter02]: fixture.router02
       }[routerVersion as RouterVersion]
       pair = fixture.pair
       WETHPair = fixture.WETHPair
@@ -305,7 +305,7 @@ describe('CocoreswapRouter{01,02}', () => {
         const token0Amount = expandTo18Decimals(5)
         const token1Amount = expandTo18Decimals(10)
         const swapAmount = expandTo18Decimals(1)
-        const expectedOutputAmount = bigNumberify('1662497915624478906')
+        const expectedOutputAmount = bigNumberify('1665277546257709618')
 
         beforeEach(async () => {
           await addLiquidity(token0Amount, token1Amount)
@@ -368,8 +368,8 @@ describe('CocoreswapRouter{01,02}', () => {
           const receipt = await tx.wait()
           expect(receipt.gasUsed).to.eq(
             {
-              [RouterVersion.CocoreswapRouter01]: 101876,
-              [RouterVersion.CocoreswapRouter02]: 101898
+              [RouterVersion.CoreDexRouter01]: 101876,
+              [RouterVersion.CoreDexRouter02]: 101898
             }[routerVersion as RouterVersion]
           )
         }).retries(3)
@@ -378,7 +378,7 @@ describe('CocoreswapRouter{01,02}', () => {
       describe('swapTokensForExactTokens', () => {
         const token0Amount = expandTo18Decimals(5)
         const token1Amount = expandTo18Decimals(10)
-        const expectedSwapAmount = bigNumberify('557227237267357629')
+        const expectedSwapAmount = bigNumberify('556111667222778334')
         const outputAmount = expandTo18Decimals(1)
 
         beforeEach(async () => {
@@ -429,7 +429,7 @@ describe('CocoreswapRouter{01,02}', () => {
         const WETHPartnerAmount = expandTo18Decimals(10)
         const ETHAmount = expandTo18Decimals(5)
         const swapAmount = expandTo18Decimals(1)
-        const expectedOutputAmount = bigNumberify('1662497915624478906')
+        const expectedOutputAmount = bigNumberify('1665277546257709618')
 
         beforeEach(async () => {
           await WETHPartner.transfer(WETHPair.address, WETHPartnerAmount)
@@ -517,8 +517,8 @@ describe('CocoreswapRouter{01,02}', () => {
           const receipt = await tx.wait()
           expect(receipt.gasUsed).to.eq(
             {
-              [RouterVersion.CocoreswapRouter01]: 138770,
-              [RouterVersion.CocoreswapRouter02]: 138770
+              [RouterVersion.CoreDexRouter01]: 138770,
+              [RouterVersion.CoreDexRouter02]: 138770
             }[routerVersion as RouterVersion]
           )
         }).retries(3)
@@ -527,7 +527,7 @@ describe('CocoreswapRouter{01,02}', () => {
       describe('swapTokensForExactETH', () => {
         const WETHPartnerAmount = expandTo18Decimals(5)
         const ETHAmount = expandTo18Decimals(10)
-        const expectedSwapAmount = bigNumberify('557227237267357629')
+        const expectedSwapAmount = bigNumberify('556111667222778334')
         const outputAmount = expandTo18Decimals(1)
 
         beforeEach(async () => {
@@ -596,7 +596,7 @@ describe('CocoreswapRouter{01,02}', () => {
         const WETHPartnerAmount = expandTo18Decimals(5)
         const ETHAmount = expandTo18Decimals(10)
         const swapAmount = expandTo18Decimals(1)
-        const expectedOutputAmount = bigNumberify('1662497915624478906')
+        const expectedOutputAmount = bigNumberify('1665277546257709618')
 
         beforeEach(async () => {
           await WETHPartner.transfer(WETHPair.address, WETHPartnerAmount)
@@ -663,7 +663,7 @@ describe('CocoreswapRouter{01,02}', () => {
       describe('swapETHForExactTokens', () => {
         const WETHPartnerAmount = expandTo18Decimals(10)
         const ETHAmount = expandTo18Decimals(5)
-        const expectedSwapAmount = bigNumberify('557227237267357629')
+        const expectedSwapAmount = bigNumberify('556111667222778334')
         const outputAmount = expandTo18Decimals(1)
 
         beforeEach(async () => {

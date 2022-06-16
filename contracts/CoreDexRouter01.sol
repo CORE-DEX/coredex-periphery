@@ -1,19 +1,19 @@
 pragma solidity =0.6.6;
 
-import '@cocore/swap-core/contracts/interfaces/ICocoreswapFactory.sol';
-import '@cocore/swap-lib/contracts/libraries/TransferHelper.sol';
+import '@core-dex/core/contracts/interfaces/ICoreDexFactory.sol';
+import '@core-dex/lib/contracts/libraries/TransferHelper.sol';
 
-import './libraries/CocoreswapLibrary.sol';
-import './interfaces/ICocoreswapRouter01.sol';
+import './libraries/CoreDexLibrary.sol';
+import './interfaces/ICoreDexRouter01.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 
-contract CocoreswapRouter01 is ICocoreswapRouter01 {
+contract CoreDexRouter01 is ICoreDexRouter01 {
     address public immutable override factory;
     address public immutable override WETH;
 
     modifier ensure(uint deadline) {
-        require(deadline >= block.timestamp, 'CocoreswapRouter: EXPIRED');
+        require(deadline >= block.timestamp, 'CoreDexRouter: EXPIRED');
         _;
     }
 
@@ -36,21 +36,21 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         uint amountBMin
     ) private returns (uint amountA, uint amountB) {
         // create the pair if it doesn't exist yet
-        if (ICocoreswapFactory(factory).getPair(tokenA, tokenB) == address(0)) {
-            ICocoreswapFactory(factory).createPair(tokenA, tokenB);
+        if (ICoreDexFactory(factory).getPair(tokenA, tokenB) == address(0)) {
+            ICoreDexFactory(factory).createPair(tokenA, tokenB);
         }
-        (uint reserveA, uint reserveB) = CocoreswapLibrary.getReserves(factory, tokenA, tokenB);
+        (uint reserveA, uint reserveB) = CoreDexLibrary.getReserves(factory, tokenA, tokenB);
         if (reserveA == 0 && reserveB == 0) {
             (amountA, amountB) = (amountADesired, amountBDesired);
         } else {
-            uint amountBOptimal = CocoreswapLibrary.quote(amountADesired, reserveA, reserveB);
+            uint amountBOptimal = CoreDexLibrary.quote(amountADesired, reserveA, reserveB);
             if (amountBOptimal <= amountBDesired) {
-                require(amountBOptimal >= amountBMin, 'CocoreswapRouter: INSUFFICIENT_B_AMOUNT');
+                require(amountBOptimal >= amountBMin, 'CoreDexRouter: INSUFFICIENT_B_AMOUNT');
                 (amountA, amountB) = (amountADesired, amountBOptimal);
             } else {
-                uint amountAOptimal = CocoreswapLibrary.quote(amountBDesired, reserveB, reserveA);
+                uint amountAOptimal = CoreDexLibrary.quote(amountBDesired, reserveB, reserveA);
                 assert(amountAOptimal <= amountADesired);
-                require(amountAOptimal >= amountAMin, 'CocoreswapRouter: INSUFFICIENT_A_AMOUNT');
+                require(amountAOptimal >= amountAMin, 'CoreDexRouter: INSUFFICIENT_A_AMOUNT');
                 (amountA, amountB) = (amountAOptimal, amountBDesired);
             }
         }
@@ -66,10 +66,10 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         uint deadline
     ) external override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
-        address pair = CocoreswapLibrary.pairFor(factory, tokenA, tokenB);
+        address pair = CoreDexLibrary.pairFor(factory, tokenA, tokenB);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
-        liquidity = ICocoreswapPair(pair).mint(to);
+        liquidity = ICoreDexPair(pair).mint(to);
     }
     function addLiquidityETH(
         address token,
@@ -87,11 +87,11 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
             amountTokenMin,
             amountETHMin
         );
-        address pair = CocoreswapLibrary.pairFor(factory, token, WETH);
+        address pair = CoreDexLibrary.pairFor(factory, token, WETH);
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
         IWETH(WETH).deposit{value: amountETH}();
         assert(IWETH(WETH).transfer(pair, amountETH));
-        liquidity = ICocoreswapPair(pair).mint(to);
+        liquidity = ICoreDexPair(pair).mint(to);
         if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH); // refund dust eth, if any
     }
 
@@ -105,13 +105,13 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         address to,
         uint deadline
     ) public override ensure(deadline) returns (uint amountA, uint amountB) {
-        address pair = CocoreswapLibrary.pairFor(factory, tokenA, tokenB);
-        ICocoreswapPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
-        (uint amount0, uint amount1) = ICocoreswapPair(pair).burn(to);
-        (address token0,) = CocoreswapLibrary.sortTokens(tokenA, tokenB);
+        address pair = CoreDexLibrary.pairFor(factory, tokenA, tokenB);
+        ICoreDexPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        (uint amount0, uint amount1) = ICoreDexPair(pair).burn(to);
+        (address token0,) = CoreDexLibrary.sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
-        require(amountA >= amountAMin, 'CocoreswapRouter: INSUFFICIENT_A_AMOUNT');
-        require(amountB >= amountBMin, 'CocoreswapRouter: INSUFFICIENT_B_AMOUNT');
+        require(amountA >= amountAMin, 'CoreDexRouter: INSUFFICIENT_A_AMOUNT');
+        require(amountB >= amountBMin, 'CoreDexRouter: INSUFFICIENT_B_AMOUNT');
     }
     function removeLiquidityETH(
         address token,
@@ -144,9 +144,9 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external override returns (uint amountA, uint amountB) {
-        address pair = CocoreswapLibrary.pairFor(factory, tokenA, tokenB);
+        address pair = CoreDexLibrary.pairFor(factory, tokenA, tokenB);
         uint value = approveMax ? uint(-1) : liquidity;
-        ICocoreswapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
+        ICoreDexPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountA, amountB) = removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline);
     }
     function removeLiquidityETHWithPermit(
@@ -158,9 +158,9 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external override returns (uint amountToken, uint amountETH) {
-        address pair = CocoreswapLibrary.pairFor(factory, token, WETH);
+        address pair = CoreDexLibrary.pairFor(factory, token, WETH);
         uint value = approveMax ? uint(-1) : liquidity;
-        ICocoreswapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
+        ICoreDexPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountToken, amountETH) = removeLiquidityETH(token, liquidity, amountTokenMin, amountETHMin, to, deadline);
     }
 
@@ -169,11 +169,11 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
     function _swap(uint[] memory amounts, address[] memory path, address _to) private {
         for (uint i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
-            (address token0,) = CocoreswapLibrary.sortTokens(input, output);
+            (address token0,) = CoreDexLibrary.sortTokens(input, output);
             uint amountOut = amounts[i + 1];
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOut) : (amountOut, uint(0));
-            address to = i < path.length - 2 ? CocoreswapLibrary.pairFor(factory, output, path[i + 2]) : _to;
-            ICocoreswapPair(CocoreswapLibrary.pairFor(factory, input, output)).swap(amount0Out, amount1Out, to, new bytes(0));
+            address to = i < path.length - 2 ? CoreDexLibrary.pairFor(factory, output, path[i + 2]) : _to;
+            ICoreDexPair(CoreDexLibrary.pairFor(factory, input, output)).swap(amount0Out, amount1Out, to, new bytes(0));
         }
     }
     function swapExactTokensForTokens(
@@ -183,9 +183,9 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         address to,
         uint deadline
     ) external override ensure(deadline) returns (uint[] memory amounts) {
-        amounts = CocoreswapLibrary.getAmountsOut(factory, amountIn, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'CocoreswapRouter: INSUFFICIENT_OUTPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, CocoreswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        amounts = CoreDexLibrary.getAmountsOut(factory, amountIn, path);
+        require(amounts[amounts.length - 1] >= amountOutMin, 'CoreDexRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CoreDexLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, to);
     }
     function swapTokensForExactTokens(
@@ -195,9 +195,9 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         address to,
         uint deadline
     ) external override ensure(deadline) returns (uint[] memory amounts) {
-        amounts = CocoreswapLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= amountInMax, 'CocoreswapRouter: EXCESSIVE_INPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, CocoreswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        amounts = CoreDexLibrary.getAmountsIn(factory, amountOut, path);
+        require(amounts[0] <= amountInMax, 'CoreDexRouter: EXCESSIVE_INPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CoreDexLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, to);
     }
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
@@ -207,11 +207,11 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[0] == WETH, 'CocoreswapRouter: INVALID_PATH');
-        amounts = CocoreswapLibrary.getAmountsOut(factory, msg.value, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'CocoreswapRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        require(path[0] == WETH, 'CoreDexRouter: INVALID_PATH');
+        amounts = CoreDexLibrary.getAmountsOut(factory, msg.value, path);
+        require(amounts[amounts.length - 1] >= amountOutMin, 'CoreDexRouter: INSUFFICIENT_OUTPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
-        assert(IWETH(WETH).transfer(CocoreswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
+        assert(IWETH(WETH).transfer(CoreDexLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
     }
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
@@ -220,10 +220,10 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, 'CocoreswapRouter: INVALID_PATH');
-        amounts = CocoreswapLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= amountInMax, 'CocoreswapRouter: EXCESSIVE_INPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, CocoreswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        require(path[path.length - 1] == WETH, 'CoreDexRouter: INVALID_PATH');
+        amounts = CoreDexLibrary.getAmountsIn(factory, amountOut, path);
+        require(amounts[0] <= amountInMax, 'CoreDexRouter: EXCESSIVE_INPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CoreDexLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, address(this));
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
@@ -234,10 +234,10 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, 'CocoreswapRouter: INVALID_PATH');
-        amounts = CocoreswapLibrary.getAmountsOut(factory, amountIn, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'CocoreswapRouter: INSUFFICIENT_OUTPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, CocoreswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        require(path[path.length - 1] == WETH, 'CoreDexRouter: INVALID_PATH');
+        amounts = CoreDexLibrary.getAmountsOut(factory, amountIn, path);
+        require(amounts[amounts.length - 1] >= amountOutMin, 'CoreDexRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CoreDexLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, address(this));
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
@@ -249,32 +249,32 @@ contract CocoreswapRouter01 is ICocoreswapRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[0] == WETH, 'CocoreswapRouter: INVALID_PATH');
-        amounts = CocoreswapLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= msg.value, 'CocoreswapRouter: EXCESSIVE_INPUT_AMOUNT');
+        require(path[0] == WETH, 'CoreDexRouter: INVALID_PATH');
+        amounts = CoreDexLibrary.getAmountsIn(factory, amountOut, path);
+        require(amounts[0] <= msg.value, 'CoreDexRouter: EXCESSIVE_INPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
-        assert(IWETH(WETH).transfer(CocoreswapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
+        assert(IWETH(WETH).transfer(CoreDexLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
         if (msg.value > amounts[0]) TransferHelper.safeTransferETH(msg.sender, msg.value - amounts[0]); // refund dust eth, if any
     }
 
     function quote(uint amountA, uint reserveA, uint reserveB) public pure override returns (uint amountB) {
-        return CocoreswapLibrary.quote(amountA, reserveA, reserveB);
+        return CoreDexLibrary.quote(amountA, reserveA, reserveB);
     }
 
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public pure override returns (uint amountOut) {
-        return CocoreswapLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
+        return CoreDexLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
     }
 
     function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) public pure override returns (uint amountIn) {
-        return CocoreswapLibrary.getAmountOut(amountOut, reserveIn, reserveOut);
+        return CoreDexLibrary.getAmountOut(amountOut, reserveIn, reserveOut);
     }
 
     function getAmountsOut(uint amountIn, address[] memory path) public view override returns (uint[] memory amounts) {
-        return CocoreswapLibrary.getAmountsOut(factory, amountIn, path);
+        return CoreDexLibrary.getAmountsOut(factory, amountIn, path);
     }
 
     function getAmountsIn(uint amountOut, address[] memory path) public view override returns (uint[] memory amounts) {
-        return CocoreswapLibrary.getAmountsIn(factory, amountOut, path);
+        return CoreDexLibrary.getAmountsIn(factory, amountOut, path);
     }
 }

@@ -1,10 +1,10 @@
 pragma solidity >=0.5.0;
 
-import '@cocore/swap-core/contracts/interfaces/ICocoreswapPair.sol';
-import '@cocore/swap-lib/contracts/libraries/FixedPoint.sol';
+import '@core-dex/core/contracts/interfaces/ICoreDexPair.sol';
+import '@core-dex/lib/contracts/libraries/FixedPoint.sol';
 
 // library with helper methods for oracles that are concerned with computing average prices
-library CocoreswapOracleLibrary {
+library CoreDexOracleLibrary {
     using FixedPoint for *;
 
     // helper function that returns the current block timestamp within the range of uint32, i.e. [0, 2**32 - 1]
@@ -17,11 +17,11 @@ library CocoreswapOracleLibrary {
         address pair
     ) internal view returns (uint price0Cumulative, uint price1Cumulative, uint32 blockTimestamp) {
         blockTimestamp = currentBlockTimestamp();
-        price0Cumulative = ICocoreswapPair(pair).price0CumulativeLast();
-        price1Cumulative = ICocoreswapPair(pair).price1CumulativeLast();
+        price0Cumulative = ICoreDexPair(pair).price0CumulativeLast();
+        price1Cumulative = ICoreDexPair(pair).price1CumulativeLast();
 
         // if time has elapsed since the last update on the pair, mock the accumulated price values
-        (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = ICocoreswapPair(pair).getReserves();
+        (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = ICoreDexPair(pair).getReserves();
         if (blockTimestampLast != blockTimestamp) {
             // subtraction overflow is desired
             uint32 timeElapsed = blockTimestamp - blockTimestampLast;

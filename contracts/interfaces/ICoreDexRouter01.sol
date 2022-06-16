@@ -1,6 +1,6 @@
 pragma solidity >=0.6.2;
 
-interface ICocoreswapRouter01 {
+interface ICoreDexRouter01 {
     function factory() external pure returns (address);
     function WETH() external pure returns (address);
 

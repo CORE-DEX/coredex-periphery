@@ -1,16 +1,16 @@
 pragma solidity >=0.5.0;
 
-import '@cocore/swap-core/contracts/interfaces/ICocoreswapPair.sol';
-import '@cocore/swap-core/contracts/interfaces/ICocoreswapFactory.sol';
-import '@cocore/swap-lib/contracts/libraries/Babylonian.sol';
-import '@cocore/swap-lib/contracts/libraries/FullMath.sol';
+import '@core-dex/core/contracts/interfaces/ICoreDexPair.sol';
+import '@core-dex/core/contracts/interfaces/ICoreDexFactory.sol';
+import '@core-dex/lib/contracts/libraries/Babylonian.sol';
+import '@core-dex/lib/contracts/libraries/FullMath.sol';
 
 import './SafeMath.sol';
-import './CocoreswapLibrary.sol';
+import './CoreDexLibrary.sol';
 
 // library containing some math for dealing with the liquidity shares of a pair, e.g. computing their exact value
 // in terms of the underlying tokens
-library CocoreswapLiquidityMathLibrary {
+library CoreDexLiquidityMathLibrary {
     using SafeMath for uint256;
 
     // computes the direction and magnitude of the profit-maximizing trade
@@ -28,10 +28,10 @@ library CocoreswapLiquidityMathLibrary {
             FullMath.mulDiv(
                 invariant.mul(1000),
                 aToB ? truePriceTokenA : truePriceTokenB,
-                (aToB ? truePriceTokenB : truePriceTokenA).mul(997)
+                (aToB ? truePriceTokenB : truePriceTokenA).mul(999)
             )
         );
-        uint256 rightSide = (aToB ? reserveA.mul(1000) : reserveB.mul(1000)) / 997;
+        uint256 rightSide = (aToB ? reserveA.mul(1000) : reserveB.mul(1000)) / 999;
 
         if (leftSide < rightSide) return (false, 0);
 
@@ -48,9 +48,9 @@ library CocoreswapLiquidityMathLibrary {
         uint256 truePriceTokenB
     ) view internal returns (uint256 reserveA, uint256 reserveB) {
         // first get reserves before the swap
-        (reserveA, reserveB) = CocoreswapLibrary.getReserves(factory, tokenA, tokenB);
+        (reserveA, reserveB) = CoreDexLibrary.getReserves(factory, tokenA, tokenB);
 
-        require(reserveA > 0 && reserveB > 0, 'CocoreswapArbitrageLibrary: ZERO_PAIR_RESERVES');
+        require(reserveA > 0 && reserveB > 0, 'CoreDexArbitrageLibrary: ZERO_PAIR_RESERVES');
 
         // then compute how much to swap to arb to the true price
         (bool aToB, uint256 amountIn) = computeProfitMaximizingTrade(truePriceTokenA, truePriceTokenB, reserveA, reserveB);
@@ -61,11 +61,11 @@ library CocoreswapLiquidityMathLibrary {
 
         // now affect the trade to the reserves
         if (aToB) {
-            uint amountOut = CocoreswapLibrary.getAmountOut(amountIn, reserveA, reserveB);
+            uint amountOut = CoreDexLibrary.getAmountOut(amountIn, reserveA, reserveB);
             reserveA += amountIn;
             reserveB -= amountOut;
         } else {
-            uint amountOut = CocoreswapLibrary.getAmountOut(amountIn, reserveB, reserveA);
+            uint amountOut = CoreDexLibrary.getAmountOut(amountIn, reserveB, reserveA);
             reserveB += amountIn;
             reserveA -= amountOut;
         }
@@ -103,9 +103,9 @@ library CocoreswapLiquidityMathLibrary {
         address tokenB,
         uint256 liquidityAmount
     ) internal view returns (uint256 tokenAAmount, uint256 tokenBAmount) {
-        (uint256 reservesA, uint256 reservesB) = CocoreswapLibrary.getReserves(factory, tokenA, tokenB);
-        ICocoreswapPair pair = ICocoreswapPair(CocoreswapLibrary.pairFor(factory, tokenA, tokenB));
-        bool feeOn = ICocoreswapFactory(factory).feeTo() != address(0);
+        (uint256 reservesA, uint256 reservesB) = CoreDexLibrary.getReserves(factory, tokenA, tokenB);
+        ICoreDexPair pair = ICoreDexPair(CoreDexLibrary.pairFor(factory, tokenA, tokenB));
+        bool feeOn = ICoreDexFactory(factory).feeTo() != address(0);
         uint kLast = feeOn ? pair.kLast() : 0;
         uint totalSupply = pair.totalSupply();
         return computeLiquidityValue(reservesA, reservesB, totalSupply, liquidityAmount, feeOn, kLast);
@@ -124,8 +124,8 @@ library CocoreswapLiquidityMathLibrary {
         uint256 tokenAAmount,
         uint256 tokenBAmount
     ) {
-        bool feeOn = ICocoreswapFactory(factory).feeTo() != address(0);
-        ICocoreswapPair pair = ICocoreswapPair(CocoreswapLibrary.pairFor(factory, tokenA, tokenB));
+        bool feeOn = ICoreDexFactory(factory).feeTo() != address(0);
+        ICoreDexPair pair = ICoreDexPair(CoreDexLibrary.pairFor(factory, tokenA, tokenB));
         uint kLast = feeOn ? pair.kLast() : 0;
         uint totalSupply = pair.totalSupply();
 

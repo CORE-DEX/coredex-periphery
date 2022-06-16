@@ -1,6 +1,6 @@
 pragma solidity =0.6.6;
 
-import '../libraries/CocoreswapLiquidityMathLibrary.sol';
+import '../libraries/CoreDexLiquidityMathLibrary.sol';
 
 contract ExampleComputeLiquidityValue {
     using SafeMath for uint256;
@@ -11,14 +11,14 @@ contract ExampleComputeLiquidityValue {
         factory = factory_;
     }
 
-    // see CocoreswapLiquidityMathLibrary#getReservesAfterArbitrage
+    // see CoreDexLiquidityMathLibrary#getReservesAfterArbitrage
     function getReservesAfterArbitrage(
         address tokenA,
         address tokenB,
         uint256 truePriceTokenA,
         uint256 truePriceTokenB
     ) external view returns (uint256 reserveA, uint256 reserveB) {
-        return CocoreswapLiquidityMathLibrary.getReservesAfterArbitrage(
+        return CoreDexLiquidityMathLibrary.getReservesAfterArbitrage(
             factory,
             tokenA,
             tokenB,
@@ -27,7 +27,7 @@ contract ExampleComputeLiquidityValue {
         );
     }
 
-    // see CocoreswapLiquidityMathLibrary#getLiquidityValue
+    // see CoreDexLiquidityMathLibrary#getLiquidityValue
     function getLiquidityValue(
         address tokenA,
         address tokenB,
@@ -36,7 +36,7 @@ contract ExampleComputeLiquidityValue {
         uint256 tokenAAmount,
         uint256 tokenBAmount
     ) {
-        return CocoreswapLiquidityMathLibrary.getLiquidityValue(
+        return CoreDexLiquidityMathLibrary.getLiquidityValue(
             factory,
             tokenA,
             tokenB,
@@ -44,7 +44,7 @@ contract ExampleComputeLiquidityValue {
         );
     }
 
-    // see CocoreswapLiquidityMathLibrary#getLiquidityValueAfterArbitrageToPrice
+    // see CoreDexLiquidityMathLibrary#getLiquidityValueAfterArbitrageToPrice
     function getLiquidityValueAfterArbitrageToPrice(
         address tokenA,
         address tokenB,
@@ -55,7 +55,7 @@ contract ExampleComputeLiquidityValue {
         uint256 tokenAAmount,
         uint256 tokenBAmount
     ) {
-        return CocoreswapLiquidityMathLibrary.getLiquidityValueAfterArbitrageToPrice(
+        return CoreDexLiquidityMathLibrary.getLiquidityValueAfterArbitrageToPrice(
             factory,
             tokenA,
             tokenB,
@@ -76,7 +76,7 @@ contract ExampleComputeLiquidityValue {
         uint256
     ) {
         uint gasBefore = gasleft();
-        CocoreswapLiquidityMathLibrary.getLiquidityValueAfterArbitrageToPrice(
+        CoreDexLiquidityMathLibrary.getLiquidityValueAfterArbitrageToPrice(
             factory,
             tokenA,
             tokenB,

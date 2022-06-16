@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@cocore/swap-core@^1.0.0-alpha":
-  version "1.0.0-alpha"
-  resolved "https://registry.yarnpkg.com/@cocore/swap-core/-/swap-core-1.0.0-alpha.tgz#f3590bda802adb0afc70a8679e4ac28266ae9480"
-  integrity sha512-0M3MeSNHIlmEivn+OcNXjs05vSYPcUn+g/WW75zaldI415qO33dLB7TTfKASl1unBIsYBFJlUy/w9z3/fNmobQ==
+"@core-dex/core@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@core-dex/core/-/core-1.0.1.tgz#dbf8c4b1f26b9f36739cec8949ae1b6d85e72290"
+  integrity sha512-WN+iGNkRu0c4LRrgB9rxdKoEQ/ZkTkZY+sEof1Wlg4qlqjdHhasgLvFhYrL7N8Wef9STWM2sA2K1VkeQdfn5nw==
 
-"@cocore/swap-lib@^1.0.0":
+"@core-dex/lib@^1.0.0":
   version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@cocore/swap-lib/-/swap-lib-1.0.0.tgz#3ed8c18bb56215919f242688fa07a8e5be19e193"
-  integrity sha512-+xJsP5N9c5ILIphL5LjTl4ZRuKFa2sRRnRHnSMlk9SDNkHR+42L4XisCRCdKhZTI1zMhOyBQ5l090Kg8XPe6BA==
+  resolved "https://registry.yarnpkg.com/@core-dex/lib/-/lib-1.0.0.tgz#dc0052002b59ae58084af2d15076cf8f6253b810"
+  integrity sha512-dXkIlWSn5HYXyEqb18V2nEjdcVCr/F0/+bT+JFvj6cK037P4KT8+pF4vkHWj7VASHFToiTRYsn5sB8YlRVF9rg==
 
 "@ethereum-waffle/chai@^2.5.1":
   version "2.5.1"

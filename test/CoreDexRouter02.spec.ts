@@ -3,7 +3,7 @@ import { solidity, MockProvider, createFixtureLoader, deployContract } from 'eth
 import { Contract } from 'ethers'
 import { BigNumber, bigNumberify } from 'ethers/utils'
 import { MaxUint256 } from 'ethers/constants'
-import ICocoreswapPair from '@cocore/swap-core/build/ICocoreswapPair.json'
+import ICoreDexPair from '@core-dex/core/build/ICoreDexPair.json'
 
 import { Fixture } from './shared/fixtures'
 import { expandTo18Decimals, getApprovalDigest, MINIMUM_LIQUIDITY } from './shared/utilities'
@@ -17,7 +17,7 @@ const overrides = {
   gasLimit: 9999999
 }
 
-describe('CocoreswapRouter02', () => {
+describe('CoreDexRouter02', () => {
   const provider = new MockProvider({
     hardfork: 'istanbul',
     mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
@@ -40,39 +40,39 @@ describe('CocoreswapRouter02', () => {
     expect(await router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(200))).to.eq(bigNumberify(2))
     expect(await router.quote(bigNumberify(2), bigNumberify(200), bigNumberify(100))).to.eq(bigNumberify(1))
     await expect(router.quote(bigNumberify(0), bigNumberify(100), bigNumberify(200))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_AMOUNT'
+      'CoreDexLibrary: INSUFFICIENT_AMOUNT'
     )
     await expect(router.quote(bigNumberify(1), bigNumberify(0), bigNumberify(200))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_LIQUIDITY'
+      'CoreDexLibrary: INSUFFICIENT_LIQUIDITY'
     )
     await expect(router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(0))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_LIQUIDITY'
+      'CoreDexLibrary: INSUFFICIENT_LIQUIDITY'
     )
   })
 
   it('getAmountOut', async () => {
     expect(await router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(1))
     await expect(router.getAmountOut(bigNumberify(0), bigNumberify(100), bigNumberify(100))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_INPUT_AMOUNT'
+      'CoreDexLibrary: INSUFFICIENT_INPUT_AMOUNT'
     )
     await expect(router.getAmountOut(bigNumberify(2), bigNumberify(0), bigNumberify(100))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_LIQUIDITY'
+      'CoreDexLibrary: INSUFFICIENT_LIQUIDITY'
     )
     await expect(router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(0))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_LIQUIDITY'
+      'CoreDexLibrary: INSUFFICIENT_LIQUIDITY'
     )
   })
 
   it('getAmountIn', async () => {
     expect(await router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(2))
     await expect(router.getAmountIn(bigNumberify(0), bigNumberify(100), bigNumberify(100))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_OUTPUT_AMOUNT'
+      'CoreDexLibrary: INSUFFICIENT_OUTPUT_AMOUNT'
     )
     await expect(router.getAmountIn(bigNumberify(1), bigNumberify(0), bigNumberify(100))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_LIQUIDITY'
+      'CoreDexLibrary: INSUFFICIENT_LIQUIDITY'
     )
     await expect(router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(0))).to.be.revertedWith(
-      'CocoreswapLibrary: INSUFFICIENT_LIQUIDITY'
+      'CoreDexLibrary: INSUFFICIENT_LIQUIDITY'
     )
   })
 
@@ -94,7 +94,7 @@ describe('CocoreswapRouter02', () => {
 
     /*
     await expect(router.getAmountsOut(bigNumberify(2), [token0.address])).to.be.revertedWith(
-      'CocoreswapLibrary: INVALID_PATH'
+      'CoreDexLibrary: INVALID_PATH'
     )
     const path = [token0.address, token1.address]
     expect(await router.getAmountsOut(bigNumberify(2), path)).to.deep.eq([bigNumberify(2), bigNumberify(1)])
@@ -117,7 +117,7 @@ describe('CocoreswapRouter02', () => {
     )
 
     await expect(router.getAmountsIn(bigNumberify(1), [token0.address])).to.be.revertedWith(
-      'CocoreswapLibrary: INVALID_PATH'
+      'CoreDexLibrary: INVALID_PATH'
     )
     const path = [token0.address, token1.address]
     expect(await router.getAmountsIn(bigNumberify(1), path)).to.deep.eq([bigNumberify(2), bigNumberify(1)])
@@ -148,7 +148,7 @@ describe('fee-on-transfer tokens', () => {
     // make a DTT<>WETH pair
     await fixture.factory.createPair(DTT.address, WETH.address)
     const pairAddress = await fixture.factory.getPair(DTT.address, WETH.address)
-    pair = new Contract(pairAddress, JSON.stringify(ICocoreswapPair.abi), provider).connect(wallet)
+    pair = new Contract(pairAddress, JSON.stringify(ICoreDexPair.abi), provider).connect(wallet)
   })
 
   afterEach(async function() {

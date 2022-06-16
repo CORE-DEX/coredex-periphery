@@ -1,6 +1,6 @@
-# CocoreSwap
+# CORE DEX
 
-CocoreSwap periphery contracts are the fork of [Uniswap V2](https://github.com/Uniswap/v2-periphery).
+CORE DEX periphery contracts are the fork of [Uniswap V2](https://github.com/Uniswap/v2-periphery).
 
 # Local Development
 

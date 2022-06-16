@@ -1,22 +1,22 @@
 pragma solidity =0.6.6;
 
-import '@cocore/swap-core/contracts/interfaces/ICocoreswapPair.sol';
-import '@cocore/swap-lib/contracts/libraries/Babylonian.sol';
-import '@cocore/swap-lib/contracts/libraries/TransferHelper.sol';
+import '@core-dex/core/contracts/interfaces/ICoreDexPair.sol';
+import '@core-dex/lib/contracts/libraries/Babylonian.sol';
+import '@core-dex/lib/contracts/libraries/TransferHelper.sol';
 
-import '../libraries/CocoreswapLiquidityMathLibrary.sol';
+import '../libraries/CoreDexLiquidityMathLibrary.sol';
 import '../interfaces/IERC20.sol';
-import '../interfaces/ICocoreswapRouter01.sol';
+import '../interfaces/ICoreDexRouter01.sol';
 import '../libraries/SafeMath.sol';
-import '../libraries/CocoreswapLibrary.sol';
+import '../libraries/CoreDexLibrary.sol';
 
 contract ExampleSwapToPrice {
     using SafeMath for uint256;
 
-    ICocoreswapRouter01 public immutable router;
+    ICoreDexRouter01 public immutable router;
     address public immutable factory;
 
-    constructor(address factory_, ICocoreswapRouter01 router_) public {
+    constructor(address factory_, ICoreDexRouter01 router_) public {
         factory = factory_;
         router = router_;
     }
@@ -42,8 +42,8 @@ contract ExampleSwapToPrice {
         bool aToB;
         uint256 amountIn;
         {
-            (uint256 reserveA, uint256 reserveB) = CocoreswapLibrary.getReserves(factory, tokenA, tokenB);
-            (aToB, amountIn) = CocoreswapLiquidityMathLibrary.computeProfitMaximizingTrade(
+            (uint256 reserveA, uint256 reserveB) = CoreDexLibrary.getReserves(factory, tokenA, tokenB);
+            (aToB, amountIn) = CoreDexLiquidityMathLibrary.computeProfitMaximizingTrade(
                 truePriceTokenA, truePriceTokenB,
                 reserveA, reserveB
             );
